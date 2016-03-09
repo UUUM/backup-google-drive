@@ -1,0 +1,6 @@
+flake8
+google-api-python-client
+oauth2client < 2
+pip-tools
+python-dateutil
+pyyaml
