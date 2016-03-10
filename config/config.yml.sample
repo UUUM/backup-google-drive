@@ -7,3 +7,11 @@ sync:
 
     # Destination folder id to store backup files
     destination_id: xxxxxx
+
+merge:
+    # Source folder ids you want to merge backup
+    source_ids:
+        - xxxxxx
+
+    # Destination folder id to store backup files
+    destination_id: xxxxxx
