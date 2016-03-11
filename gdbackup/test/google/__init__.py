@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from uuum.google.drive import Drive, Resource
-from uuum.google.finished_folders import FinishedFolders
+from gdbackup.google.drive import Drive, Resource
+from gdbackup.google.finished_folders import FinishedFolders
 
 TEST_FOLDER_NAME = 'backup-google-drive-test'
 

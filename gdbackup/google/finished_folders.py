@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-import uuum
+import gdbackup
 
 
 class FinishedFolders(set):
@@ -13,7 +13,7 @@ class FinishedFolders(set):
 
     def __init__(self, root_id):
         if self.db_file is None:
-            self.db_file = os.path.join(uuum.VAR_DIR, self.db_file_name)
+            self.db_file = os.path.join(gdbackup.VAR_DIR, self.db_file_name)
 
         self.root_id = root_id
 

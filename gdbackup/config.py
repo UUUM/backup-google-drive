@@ -2,9 +2,9 @@ import os
 
 import yaml
 
-import uuum
+import gdbackup
 
-CONFIG_FILE = os.path.join(uuum.CONFIG_DIR, 'config.yml')
+CONFIG_FILE = os.path.join(gdbackup.CONFIG_DIR, 'config.yml')
 
 
 class Config(dict):

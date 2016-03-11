@@ -1,10 +1,10 @@
 import os
 import unittest
 
-import uuum.config
-from uuum.config import Config
+import gdbackup.config
+from gdbackup.config import Config
 
-uuum.config.CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.yml')
+gdbackup.config.CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.yml')
 
 
 class ConfigTest(unittest.TestCase):

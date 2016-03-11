@@ -3,14 +3,14 @@ from pprint import pprint
 
 from googleapiclient.errors import HttpError
 
-import uuum
-import uuum.google.backup
-from uuum.config import Config
+import gdbackup
+import gdbackup.google.backup
+from gdbackup.config import Config
 
 
 class Merge:
     def __init__(self):
-        self.backup = uuum.google.backup.Backup()
+        self.backup = gdbackup.google.backup.Backup()
         self.backup.callback = self._print
 
         self.config = Config()

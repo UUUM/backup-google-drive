@@ -5,10 +5,10 @@ import os
 import time
 import unittest
 
-from uuum.google.backup import Backup, Merge, Sync
-from uuum.google.drive import Drive, Resource
+from gdbackup.google.backup import Backup, Merge, Sync
+from gdbackup.google.drive import Drive, Resource
 
-from uuum.test.google import TestCase
+from gdbackup.test.google import TestCase
 
 
 class BackupTest(TestCase):

@@ -1,2 +1,2 @@
-import uuum.cli.merge
-uuum.cli.merge.main()
+import gdbackup.cli.merge
+gdbackup.cli.merge.main()

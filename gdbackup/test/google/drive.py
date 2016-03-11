@@ -7,8 +7,8 @@ import unittest
 import oauth2client
 import googleapiclient
 
-from uuum.google.drive import Drive, Resource
-from uuum.test.google import TestCase
+from gdbackup.google.drive import Drive, Resource
+from gdbackup.test.google import TestCase
 
 
 class DriveTest(TestCase):

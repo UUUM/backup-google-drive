@@ -9,7 +9,7 @@ from googleapiclient.errors import HttpError
 import oauth2client
 from oauth2client import client, tools
 
-import uuum
+import gdbackup
 
 DEFAULT_RESOURCE_FIELDS = 'id, createdTime, mimeType, modifiedTime, name, parents, trashed'
 MIME_TYPE_APP = 'application/vnd.google-apps.drive-sdk'
@@ -18,8 +18,8 @@ MIME_TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 class Drive:
     SCOPES = 'https://www.googleapis.com/auth/drive'
-    CLIENT_SECRET_FILE = os.path.join(uuum.CONFIG_DIR, 'client_secrets.json')
-    CREDENTIAL_FILE = os.path.join(uuum.CONFIG_DIR, 'credentials.json')
+    CLIENT_SECRET_FILE = os.path.join(gdbackup.CONFIG_DIR, 'client_secrets.json')
+    CREDENTIAL_FILE = os.path.join(gdbackup.CONFIG_DIR, 'credentials.json')
 
     _credentials = None
     _http = None

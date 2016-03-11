@@ -1,8 +1,8 @@
 import sqlite3
 import unittest
 
-from uuum.test.google import TestCase
-from uuum.google.finished_folders import FinishedFolders
+from gdbackup.test.google import TestCase
+from gdbackup.google.finished_folders import FinishedFolders
 
 
 class BackupTest(TestCase):

@@ -2,8 +2,8 @@ from dateutil import parser
 import os
 import time
 
-from uuum.google.drive import Drive, Resource
-from uuum.google.finished_folders import FinishedFolders
+from gdbackup.google.drive import Drive, Resource
+from gdbackup.google.finished_folders import FinishedFolders
 
 FinishedFolders.db_file_name = 'backup.db'
 

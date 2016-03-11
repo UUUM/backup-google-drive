@@ -1,2 +1,2 @@
-import uuum.cli.backup
-uuum.cli.backup.main()
+import gdbackup.cli.backup
+gdbackup.cli.backup.main()
