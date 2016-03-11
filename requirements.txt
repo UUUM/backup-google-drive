@@ -13,9 +13,11 @@ mccabe==0.4.0             # via flake8
 oauth2client==1.5.2
 pep8==1.7.0               # via flake8
 pip-tools==1.6
+py==1.4.31                # via pytest
 pyasn1-modules==0.0.8     # via oauth2client
 pyasn1==0.1.9             # via oauth2client, pyasn1-modules, rsa
 pyflakes==1.0.0           # via flake8
+pytest==2.9.0
 python-dateutil==2.4.2
 pyyaml==3.11
 rsa==3.3                  # via oauth2client
