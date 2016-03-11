@@ -1,0 +1,9 @@
+sync:
+    # Source folder ids you want to backup
+    source_ids:
+        - xxxxxx
+        - yyyyyy
+        - zzzzzz
+
+    # Destination folder id to store backup files
+    destination_id: xxxxxx
