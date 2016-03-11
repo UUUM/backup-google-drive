@@ -1,14 +1,20 @@
+import os
 import sqlite3
+
+import pytest
 
 from gdbackup.google.finished_folders import FinishedFolders
 
 
 class TestBackupTest:
-    def setUp(self):
-        self._remove_db_file()
-
-    def tearDown(self):
-        self._remove_db_file()
+    @pytest.fixture(autouse=True)
+    def delete_db_file(self, request):
+        def fin():
+            file = FinishedFolders('xxxxxx').db_file
+            if os.path.isfile(file):
+                os.unlink(file)
+        request.addfinalizer(fin)
+        fin()
 
     def test_conn(self):
         folders = FinishedFolders('xxxxxx')
