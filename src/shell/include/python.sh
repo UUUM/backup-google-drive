@@ -1,4 +1,4 @@
-PYTHON_DIR=$SRC_DIR/python
+PYTHON_DIR=$TOP_DIR
 
 PYTHON="/usr/bin/env python"
 PYTHON_OPT=
