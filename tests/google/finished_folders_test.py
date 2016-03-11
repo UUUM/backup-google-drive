@@ -1,11 +1,9 @@
 import sqlite3
-import unittest
 
-from gdbackup.test.google import TestCase
 from gdbackup.google.finished_folders import FinishedFolders
 
 
-class BackupTest(TestCase):
+class TestBackupTest:
     def setUp(self):
         self._remove_db_file()
 
@@ -75,7 +73,3 @@ class BackupTest(TestCase):
         assert 'foo' in ids
         assert 'bar' in ids
         assert len(ids) == 2
-
-
-if __name__ == '__main__':
-    unittest.main()
