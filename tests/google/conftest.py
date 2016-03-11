@@ -1,8 +1,21 @@
+import os
+
 import pytest
 
 from gdbackup.google.drive import Drive
+from gdbackup.google.finished_folders import FinishedFolders
 
 TEST_FOLDER_NAME = 'gdbackup-test'
+
+
+@pytest.fixture()
+def delete_db_file(request):
+    def fin():
+        file = FinishedFolders('xxxxxx').db_file
+        if os.path.isfile(file):
+            os.unlink(file)
+    request.addfinalizer(fin)
+    fin()
 
 
 @pytest.fixture(scope='session')

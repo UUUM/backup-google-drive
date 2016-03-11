@@ -1,4 +1,3 @@
-import os
 import sqlite3
 
 import pytest
@@ -6,16 +5,8 @@ import pytest
 from gdbackup.google.finished_folders import FinishedFolders
 
 
+@pytest.mark.usefixtures('delete_db_file')
 class TestBackupTest:
-    @pytest.fixture(autouse=True)
-    def delete_db_file(self, request):
-        def fin():
-            file = FinishedFolders('xxxxxx').db_file
-            if os.path.isfile(file):
-                os.unlink(file)
-        request.addfinalizer(fin)
-        fin()
-
     def test_conn(self):
         folders = FinishedFolders('xxxxxx')
         conn = folders.conn
