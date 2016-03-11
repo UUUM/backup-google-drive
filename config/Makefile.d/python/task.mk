@@ -1,7 +1,11 @@
 .PHONY: python-clean
 python-clean:
-	find $(TOP_DIR) -name '*.pyc' | xargs rm -f
-	find $(TOP_DIR) -name '__pycache__' | xargs rm -rf
+	find $(TOP_DIR) \
+		-name '*.pyc' -o \
+		-name __pycache__ -o \
+		-name .cache -o \
+		-name .eggs -o \
+		-name '*.egg-info' | xargs rm -rf
 
 .PHONY: python-test
 python-test:
