@@ -3,31 +3,23 @@ from __future__ import unicode_literals
 
 import os
 import time
-import unittest
+
+import pytest
 
 from gdbackup.google.backup import Backup, Merge, Sync
 from gdbackup.google.drive import Drive, Resource
 
-from gdbackup.test.google import TestCase
 
-
-class BackupTest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls._create_test_folder()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls._delete_test_folder()
-
+@pytest.mark.usefixtures('test_folder', 'dest_folder')
+class TestBackup:
     def test_init(self):
         backup = Backup()
         assert hasattr(backup.callback, '__call__')
         assert isinstance(backup.drive, Drive)
 
-    def test_create_date_folder(self):
+    def test_create_date_folder(self, dest_folder):
         backup = Backup()
-        res = backup.drive.open(self.dest_folder.id)
+        res = backup.drive.open(dest_folder.id)
 
         folder1 = backup.create_date_folder(res)
         assert isinstance(folder1, Resource)
@@ -37,14 +29,9 @@ class BackupTest(TestCase):
         assert isinstance(folder1, Resource)
         assert folder1.id == folder2.id
 
-    def test_find_prev_folder(self):
+    def test_find_prev_folder(self, test_folder):
         backup = Backup()
-
-        # clean dest_folder
-        self.dest_folder.delete()
-        self.dest_folder = backup.drive.create_folder('バックアップ先', parents=[self.test_folder])
-
-        res = backup.drive.open(self.dest_folder.id)
+        res = test_folder.create_folder('test_prev_folder')
 
         folders = []
         for i in range(3):
@@ -60,21 +47,18 @@ class BackupTest(TestCase):
         folder = backup.find_prev_folder(res, folders[0])
         assert folder is None
 
+        for folder in folders:
+            folder.delete()
+        res.delete()
 
-class MergeTest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls._create_test_folder()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls._delete_test_folder()
-
-    def test_merge(self):
+@pytest.mark.usefixtures('dest_folder', 'src_folder', 'src_file')
+class TestMerge:
+    def test_merge(self, dest_folder, src_folder):
         backup = Backup()
         drive = backup.drive
-        src_res = drive.open(self.src_folder.id)
-        dest_res = drive.open(self.dest_folder.id)
+        src_res = drive.open(src_folder.id)
+        dest_res = drive.open(dest_folder.id)
         dest_folder = backup.create_date_folder(dest_res)
 
         # sync to empty folder
@@ -98,26 +82,13 @@ class MergeTest(TestCase):
         new_file.delete()
 
 
-class SyncTest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls._create_test_folder()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls._delete_test_folder()
-
-    def setUp(self):
-        self._remove_db_file()
-
-    def tearDown(self):
-        self._remove_db_file()
-
-    def test_sync(self):
+@pytest.mark.usefixtures('dest_folder', 'src_folder', 'src_file', 'delete_db_file')
+class TestSync:
+    def test_sync(self, dest_folder, src_folder):
         backup = Backup()
         drive = backup.drive
-        src_res = drive.open(self.src_folder.id)
-        dest_res = drive.open(self.dest_folder.id)
+        src_res = drive.open(src_folder.id)
+        dest_res = drive.open(dest_folder.id)
         dest_folder = backup.create_date_folder(dest_res)
 
         # sync to empty folder
@@ -177,7 +148,3 @@ def _print(src_item, folder_name, skip=False):
         print('Skip: ' + name)
     else:
         print(name)
-
-
-if __name__ == '__main__':
-    unittest.main()
