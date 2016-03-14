@@ -81,6 +81,18 @@ class Sync:
         self._sync_file = self._callback_sync_file
         self._sync(self.src, self.dest, self.comp, '')
 
+    def _callback_merge_file(self, src_item, dest_res, comp_res, folder_name):
+        dest_file = dest_res.find(src_item.name, mime_type=src_item.mimeType)
+        if not dest_file:
+            self.callback(src_item, folder_name, state='new')
+            src_item.copy_to(dest_res)
+        elif parser.parse(dest_file.createdTime) < parser.parse(src_item.modifiedTime):
+            self.callback(src_item, folder_name, state='update')
+            dest_file.delete()
+            src_item.copy_to(dest_res)
+        else:
+            self.callback(src_item, folder_name, state='skip')
+
     def _callback_sync_file(self, src_item, dest_res, comp_res, folder_name):
         if dest_res.find(src_item.name, mime_type=src_item.mimeType):
             return
@@ -100,18 +112,6 @@ class Sync:
         else:
             self.callback(src_item, folder_name, state='update')
             src_item.copy_to(dest_res)
-
-    def _callback_merge_file(self, src_item, dest_res, comp_res, folder_name):
-        dest_file = dest_res.find(src_item.name, mime_type=src_item.mimeType)
-        if not dest_file:
-            self.callback(src_item, folder_name, state='new')
-            src_item.copy_to(dest_res)
-        elif parser.parse(dest_file.createdTime) < parser.parse(src_item.modifiedTime):
-            self.callback(src_item, folder_name, state='update')
-            dest_file.delete()
-            src_item.copy_to(dest_res)
-        else:
-            self.callback(src_item, folder_name, state='skip')
 
     def _sync(self, src_res, dest_res, comp_res, folder_name):
         folder_name = os.path.join(folder_name, dest_res.name)
