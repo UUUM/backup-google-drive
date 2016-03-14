@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-click==6.3                # via pip-tools
+click==6.3
 first==2.0.1              # via pip-tools
 flake8==2.5.4
 google-api-python-client==1.4.2
