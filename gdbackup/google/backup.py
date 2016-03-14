@@ -37,16 +37,16 @@ class Backup:
         src = self._init_resource(src)
         dest = self._init_resource(dest)
 
-        merge = Merge(self, src, dest)
-        merge.callback = self.callback
-        merge.merge()
+        sync = Sync(self, src, dest)
+        sync.callback = self.callback
+        sync.merge()
 
-    def sync(self, src, dest, prev=None):
+    def sync(self, src, dest, comp=None):
         src = self._init_resource(src)
         dest = self._init_resource(dest)
-        prev = self._init_resource(prev)
+        comp = self._init_resource(comp)
 
-        sync = Sync(self, src, dest, prev)
+        sync = Sync(self, src, dest, comp)
         sync.callback = self.callback
         sync.sync()
 
@@ -59,40 +59,49 @@ class Backup:
             raise ValueError('Value must be Resource object or resource id')
 
 
-class Merge:
-    def __init__(self, drive, src, dest):
+class Sync:
+    finished_folders = None
+
+    def __init__(self, drive, src, dest, comp=None):
         self.drive = drive
         self.callback = print_none
 
         self.src = src
         self.dest = dest
+        self.comp = comp
 
     def merge(self):
-        self._merge(self.src, self.dest, '')
+        self._sync_file = self._callback_merge_file
+        self._sync(self.src, self.dest, self.comp, '')
 
-    def _merge(self, src_res, dest_res, folder_name):
-        folder_name = os.path.join(folder_name, dest_res.name)
+    def sync(self):
+        self.finished_folders = FinishedFolders(self.dest.id)
+        self.finished_folders.load()
 
-        for src_item in src_res.list():
-            self._merge_item(src_item, dest_res, folder_name)
+        self._sync_file = self._callback_sync_file
+        self._sync(self.src, self.dest, self.comp, '')
 
-    def _merge_item(self, src_item, dest_res, folder_name):
-        if src_item.is_folder():
-            self._merge_folder(src_item, dest_res, folder_name)
-        elif src_item.is_app():
-            pass
+    def _callback_sync_file(self, src_item, dest_res, comp_res, folder_name):
+        if dest_res.find(src_item.name, mime_type=src_item.mimeType):
+            return
+
+        if comp_res:
+            comp_file = comp_res.find(src_item.name, mime_type=src_item.mimeType)
         else:
-            self._merge_file(src_item, dest_res, folder_name)
+            comp_file = None
 
-    def _merge_folder(self, src_item, dest_res, folder_name):
-        dest_folder = dest_res.find_folder(src_item.name)
-        if not dest_folder:
-            dest_folder = dest_res.create_folder(src_item.name)
+        if comp_file:
+            if parser.parse(comp_file.createdTime) < parser.parse(src_item.modifiedTime):
+                self.callback(src_item, folder_name, state='update')
+                src_item.copy_to(dest_res)
+            else:
+                self.callback(src_item, folder_name, state='add')
+                comp_file.add_to(dest_res)
+        else:
+            self.callback(src_item, folder_name, state='update')
+            src_item.copy_to(dest_res)
 
-        self.callback(src_item, folder_name, state='folder')
-        self._merge(src_item, dest_folder, folder_name)
-
-    def _merge_file(self, src_item, dest_res, folder_name):
+    def _callback_merge_file(self, src_item, dest_res, comp_res, folder_name):
         dest_file = dest_res.find(src_item.name, mime_type=src_item.mimeType)
         if not dest_file:
             self.callback(src_item, folder_name, state='new')
@@ -104,38 +113,22 @@ class Merge:
         else:
             self.callback(src_item, folder_name, state='skip')
 
-
-class Sync:
-    def __init__(self, drive, src, dest, prev=None):
-        self.drive = drive
-        self.callback = print_none
-
-        self.src = src
-        self.dest = dest
-        self.prev = prev
-
-        self.finished_folders = FinishedFolders(self.dest.id)
-        self.finished_folders.load()
-
-    def sync(self):
-        self._sync(self.src, self.dest, self.prev, '')
-
-    def _sync(self, src_res, dest_res, prev_res, folder_name):
+    def _sync(self, src_res, dest_res, comp_res, folder_name):
         folder_name = os.path.join(folder_name, dest_res.name)
 
         for src_item in src_res.list():
-            self._sync_item(src_item, dest_res, prev_res, folder_name)
+            self._sync_item(src_item, dest_res, comp_res, folder_name)
 
-    def _sync_item(self, src_item, dest_res, prev_res, folder_name):
+    def _sync_item(self, src_item, dest_res, comp_res, folder_name):
         if src_item.is_folder():
-            self._sync_folder(src_item, dest_res, prev_res, folder_name)
+            self._sync_folder(src_item, dest_res, comp_res, folder_name)
         elif src_item.is_app():
             pass
         else:
-            self._sync_file(src_item, dest_res, prev_res, folder_name)
+            self._sync_file(src_item, dest_res, comp_res, folder_name)
 
-    def _sync_folder(self, src_item, dest_res, prev_res, folder_name):
-        if src_item.id in self.finished_folders:
+    def _sync_folder(self, src_item, dest_res, comp_res, folder_name):
+        if self.finished_folders is not None and src_item.id in self.finished_folders:
             self.callback(src_item, folder_name, state='skip')
             return
 
@@ -143,36 +136,17 @@ class Sync:
         if not dest_folder:
             dest_folder = dest_res.create_folder(src_item.name)
 
-        if prev_res:
-            prev_folder = prev_res.find_folder(src_item.name)
+        if comp_res:
+            comp_folder = comp_res.find_folder(src_item.name)
         else:
-            prev_folder = None
+            comp_folder = None
 
         self.callback(src_item, folder_name, state='folder')
-        self._sync(src_item, dest_folder, prev_folder, folder_name)
+        self._sync(src_item, dest_folder, comp_folder, folder_name)
 
-        self.finished_folders.add(src_item.id)
-        self.finished_folders.save()
-
-    def _sync_file(self, src_item, dest_res, prev_res, folder_name):
-        if dest_res.find(src_item.name, mime_type=src_item.mimeType):
-            return
-
-        if prev_res:
-            prev_file = prev_res.find(src_item.name, mime_type=src_item.mimeType)
-        else:
-            prev_file = None
-
-        if prev_file:
-            if parser.parse(prev_file.createdTime) < parser.parse(src_item.modifiedTime):
-                self.callback(src_item, folder_name, state='update')
-                src_item.copy_to(dest_res)
-            else:
-                self.callback(src_item, folder_name, state='add')
-                prev_file.add_to(dest_res)
-        else:
-            self.callback(src_item, folder_name, state='update')
-            src_item.copy_to(dest_res)
+        if self.finished_folders is not None:
+            self.finished_folders.add(src_item.id)
+            self.finished_folders.save()
 
 
 def print_none(src_item, folder_name, state=''):

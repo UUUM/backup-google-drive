@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from gdbackup.google.backup import Backup, Merge, Sync
+from gdbackup.google.backup import Backup, Sync
 from gdbackup.google.drive import Drive, Resource
 
 
@@ -52,8 +52,8 @@ class TestBackup:
         res.delete()
 
 
-@pytest.mark.usefixtures('dest_folder', 'src_folder', 'src_file')
-class TestMerge:
+@pytest.mark.usefixtures('dest_folder', 'src_folder', 'src_file', 'delete_db_file')
+class TestSync:
     def test_merge(self, dest_folder, src_folder):
         backup = Backup()
         drive = backup.drive
@@ -62,28 +62,22 @@ class TestMerge:
         dest_folder = backup.create_date_folder(dest_res)
 
         # sync to empty folder
-        merge = Merge(drive, src_res, drive.open(dest_folder.id))
-        merge.merge()
+        Sync(drive, src_res, drive.open(dest_folder.id)).merge()
         compare_folder(src_res, drive.open(dest_folder.id))
 
         # remove some files and merge
         dest_folder = drive.open(dest_folder.id)
         dest_folder.find('テスト', mime_type='text/plain').delete()
         dest_folder.find('テスト', mime_type='text/csv').delete()
-        merge = Merge(drive, src_res, drive.open(dest_folder.id))
-        merge.merge()
+        Sync(drive, src_res, drive.open(dest_folder.id)).merge()
         compare_folder(src_res, drive.open(dest_folder.id))
 
         # create a new file and merge
         new_file = src_res.create('test.txt', content='test')
-        merge = Merge(drive, src_res, drive.open(dest_folder.id))
-        merge.merge()
+        Sync(drive, src_res, drive.open(dest_folder.id)).merge()
         compare_folder(src_res, drive.open(dest_folder.id))
         new_file.delete()
 
-
-@pytest.mark.usefixtures('dest_folder', 'src_folder', 'src_file', 'delete_db_file')
-class TestSync:
     def test_sync(self, dest_folder, src_folder):
         backup = Backup()
         drive = backup.drive
