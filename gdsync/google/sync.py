@@ -7,7 +7,7 @@ from gdsync.google.finished_folders import FinishedFolders
 FinishedFolders.db_file_name = 'backup.db'
 
 
-class Backup:
+class Sync:
     finished_folders = None
 
     def __init__(self, src, dest, sync_id=None):

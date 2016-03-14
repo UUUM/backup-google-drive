@@ -4,13 +4,13 @@ from pprint import pprint
 from googleapiclient.errors import HttpError
 
 import gdsync
-import gdsync.google.backup
+import gdsync.google.sync
 from gdsync.config import Config
 
 
 class Merge:
     def __init__(self):
-        self.backup = gdsync.google.backup.Backup()
+        self.backup = gdsync.google.sync.Sync()
         self.backup.callback = self._print
 
         self.config = Config()

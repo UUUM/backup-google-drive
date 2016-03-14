@@ -6,7 +6,7 @@ from gdsync.google.finished_folders import FinishedFolders
 
 
 @pytest.mark.usefixtures('delete_db_file')
-class TestBackupTest:
+class TestFinishedFolders:
     def test_conn(self):
         folders = FinishedFolders('xxxxxx')
         conn = folders.conn
