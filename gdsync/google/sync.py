@@ -8,20 +8,22 @@ FinishedFolders.db_file_name = 'backup.db'
 
 
 class Sync:
-    finished_folders = None
-
-    def __init__(self, src, dest, sync_id=None):
+    def __init__(self, src, dest, config_dir=None, sync_id=None):
         self.callback = print_none
-        self.drive = Drive()
+        self.drive = Drive(config_dir=config_dir)
 
         self.src = self._init_resource(src)
         self.dest = self._init_resource(dest)
 
-        if sync_id:
+        self.sync_id = sync_id
+
+        self.finished_folders = None
+
+    def sync(self):
+        if self.sync_id:
             self.finished_folders = FinishedFolders(self.dest.id)
             self.finished_folders.load()
 
-    def sync(self):
         self._sync(self.src, self.dest, '')
         return self
 

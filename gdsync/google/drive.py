@@ -18,12 +18,19 @@ MIME_TYPE_FOLDER = 'application/vnd.google-apps.folder'
 
 class Drive:
     SCOPES = 'https://www.googleapis.com/auth/drive'
-    CLIENT_SECRET_FILE = os.path.join(gdsync.CONFIG_DIR, 'client_secrets.json')
-    CREDENTIAL_FILE = os.path.join(gdsync.CONFIG_DIR, 'credentials.json')
 
     _credentials = None
     _http = None
     _service = None
+
+    def __init__(self, config_dir=None):
+        if config_dir:
+            self.config_dir = config_dir
+        else:
+            self.config_dir = gdsync.CONFIG_DIR
+
+        self.client_secret_file = os.path.join(self.config_dir, 'client_secrets.json')
+        self.credential_file = os.path.join(self.config_dir, 'credentials.json')
 
     def add_parents(self, file, parents):
         try:
@@ -214,7 +221,7 @@ class Drive:
         return self._service
 
     def _create_credentials(self):
-        store = oauth2client.file.Storage(self.CREDENTIAL_FILE)
+        store = oauth2client.file.Storage(self.credential_file)
         credentials = store.get()
         if not credentials or credentials.invalid:
             import argparse
@@ -222,7 +229,7 @@ class Drive:
                 parents=[tools.argparser]
             ).parse_args()
             flow = client.flow_from_clientsecrets(
-                self.CLIENT_SECRET_FILE,
+                self.client_secret_file,
                 self.SCOPES
             )
             credentials = tools.run_flow(flow, store, flags)

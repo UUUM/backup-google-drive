@@ -8,7 +8,6 @@ import pytest
 
 from gdsync.google.sync import Sync
 from gdsync.google.drive import Drive, Resource
-from gdsync.google.finished_folders import FinishedFolders
 
 
 @pytest.mark.usefixtures('test_folder', 'src_folder', 'src_file', 'delete_db_file')
@@ -21,9 +20,6 @@ class TestSync:
         assert isinstance(backup.dest, Resource)
         assert backup.finished_folders is None
 
-        backup = Sync('xxxxxx', 'yyyyyy', 'sync_id')
-        assert isinstance(backup.finished_folders, FinishedFolders)
-
     def test_sync(self, test_folder, src_folder, src_file):
         drive = Drive()
         test_folder = drive.open(test_folder.id)
@@ -33,7 +29,7 @@ class TestSync:
         dest_folder = test_folder.create_folder(sync_id)
 
         # sync to empty folder
-        backup = Sync(src_folder, dest_folder, sync_id).sync()
+        backup = Sync(src_folder, dest_folder, sync_id=sync_id).sync()
         assert len(backup.finished_folders) == 1
         assert src_folder.find('フォルダ').id in backup.finished_folders
         compare_folder(src_folder, dest_folder)
@@ -42,24 +38,24 @@ class TestSync:
         dest_folder = drive.open(dest_folder.id)
         dest_folder.find('テスト', mime_type='text/plain').delete()
         dest_folder.find('テスト', mime_type='text/csv').delete()
-        Sync(src_folder, dest_folder, sync_id).sync()
+        Sync(src_folder, dest_folder, sync_id=sync_id).sync()
         compare_folder(src_folder, dest_folder)
 
         # create a new file and sync
         new_file_name = '%s.txt' % sync_id
         new_file = src_folder.create(new_file_name, content='test')
-        Sync(src_folder, dest_folder, sync_id).sync()
+        Sync(src_folder, dest_folder, sync_id=sync_id).sync()
         compare_folder(src_folder, dest_folder)
 
         # remove a new file and sync and a new file still exists
         new_file.delete()
-        Sync(src_folder, dest_folder, sync_id).sync()
+        Sync(src_folder, dest_folder, sync_id=sync_id).sync()
         dest_folder = drive.open(dest_folder.id)
         assert isinstance(dest_folder.find(new_file_name), Resource)
 
         # skip synced folder
         dest_folder.find('フォルダ').find('テストsub').delete()
-        backup = Sync(src_folder, dest_folder, sync_id).sync()
+        backup = Sync(src_folder, dest_folder, sync_id=sync_id).sync()
         assert len(backup.finished_folders) == 1
         assert drive.open(dest_folder.id).find('フォルダ').find('テストsub') is None
 
