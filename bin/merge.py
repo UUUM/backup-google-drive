@@ -1,2 +1,2 @@
-import gdbackup.cli.merge
-gdbackup.cli.merge.main()
+import gdsync.cli.merge
+gdsync.cli.merge.main()

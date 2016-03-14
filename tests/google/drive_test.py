@@ -7,7 +7,7 @@ import oauth2client
 import googleapiclient
 import pytest
 
-from gdbackup.google.drive import Drive, Resource
+from gdsync.google.drive import Drive, Resource
 
 
 class TestDrive:

@@ -2,9 +2,9 @@ import os
 
 import yaml
 
-import gdbackup
+import gdsync
 
-CONFIG_FILE = os.path.join(gdbackup.CONFIG_DIR, 'config.yml')
+CONFIG_FILE = os.path.join(gdsync.CONFIG_DIR, 'config.yml')
 
 
 class Config(dict):

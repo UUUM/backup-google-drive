@@ -2,7 +2,7 @@ import sqlite3
 
 import pytest
 
-from gdbackup.google.finished_folders import FinishedFolders
+from gdsync.google.finished_folders import FinishedFolders
 
 
 @pytest.mark.usefixtures('delete_db_file')

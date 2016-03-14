@@ -6,9 +6,9 @@ import time
 
 import pytest
 
-from gdbackup.google.backup import Backup
-from gdbackup.google.drive import Drive, Resource
-from gdbackup.google.finished_folders import FinishedFolders
+from gdsync.google.backup import Backup
+from gdsync.google.drive import Drive, Resource
+from gdsync.google.finished_folders import FinishedFolders
 
 
 @pytest.mark.usefixtures('test_folder', 'src_folder', 'src_file', 'delete_db_file')

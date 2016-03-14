@@ -2,10 +2,10 @@ import os
 
 import pytest
 
-from gdbackup.google.drive import Drive
-from gdbackup.google.finished_folders import FinishedFolders
+from gdsync.google.drive import Drive
+from gdsync.google.finished_folders import FinishedFolders
 
-TEST_FOLDER_NAME = 'gdbackup-test'
+TEST_FOLDER_NAME = 'gdsync-test'
 
 
 @pytest.fixture()

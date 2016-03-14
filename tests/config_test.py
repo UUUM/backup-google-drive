@@ -1,9 +1,9 @@
 import os
 
-import gdbackup
-from gdbackup.config import Config
+import gdsync
+from gdsync.config import Config
 
-gdbackup.config.CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.yml')
+gdsync.config.CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.yml')
 
 
 class TestConfig:

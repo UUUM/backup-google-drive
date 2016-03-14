@@ -1,2 +1,2 @@
-import gdbackup.cli.backup
-gdbackup.cli.backup.main()
+import gdsync.cli.backup
+gdsync.cli.backup.main()

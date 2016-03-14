@@ -1,8 +1,8 @@
 from dateutil import parser
 import os
 
-from gdbackup.google.drive import Drive, Resource
-from gdbackup.google.finished_folders import FinishedFolders
+from gdsync.google.drive import Drive, Resource
+from gdsync.google.finished_folders import FinishedFolders
 
 FinishedFolders.db_file_name = 'backup.db'
 
