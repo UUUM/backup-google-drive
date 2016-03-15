@@ -37,7 +37,11 @@ class Cli:
 
 
 @click.command()
-@click.option('--config-dir', default='~/.gdsync', help='config directory')
+@click.option(
+    '--config-dir',
+    default=os.path.join(os.path.expanduser('~'), '.gdsync'),
+    help='config directory',
+)
 @click.argument('source')
 @click.argument('destination')
 def main(source, destination, config_dir):
