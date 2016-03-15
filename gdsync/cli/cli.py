@@ -19,6 +19,7 @@ class Cli:
             self.source,
             self.destination,
             config_dir=self.config_dir,
+            sync_id=self.sync_id,
         )
         sync.callback = self._print
         sync.sync()
@@ -37,18 +38,20 @@ class Cli:
 
 
 @click.command()
+@click.argument('source')
+@click.argument('destination')
 @click.option(
     '--config-dir',
     default=os.path.join(os.path.expanduser('~'), '.gdsync'),
     help='config directory',
 )
-@click.argument('source')
-@click.argument('destination')
-def main(source, destination, config_dir):
+@click.option('--sync-id', help='unique id for syncronization')
+def main(source, destination, config_dir, sync_id):
     cli = Cli()
     cli.source = source
     cli.destination = destination
     cli.config_dir = config_dir
+    cli.sync_id = sync_id
     cli.main()
 
 
