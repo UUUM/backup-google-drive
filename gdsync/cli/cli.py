@@ -19,6 +19,7 @@ class Cli:
             self.source,
             self.destination,
             config_dir=self.config_dir,
+            sqlite_file=self.sqlite_file,
             sync_id=self.sync_id,
         )
         sync.callback = self._print
@@ -45,13 +46,21 @@ class Cli:
     default=os.path.join(os.path.expanduser('~'), '.gdsync'),
     help='config directory',
 )
+@click.option('--sqlite-file', help='sqlite file to store information of progress')
 @click.option('--sync-id', help='unique id for syncronization')
-def main(source, destination, config_dir, sync_id):
+def main(source, destination, config_dir, sqlite_file, sync_id):
     cli = Cli()
+
     cli.source = source
     cli.destination = destination
     cli.config_dir = config_dir
     cli.sync_id = sync_id
+
+    if sqlite_file:
+        cli.sqlite_file = sqlite_file
+    else:
+        cli.sqlite_file = os.path.join(config_dir, 'gdsync.db')
+
     cli.main()
 
 
