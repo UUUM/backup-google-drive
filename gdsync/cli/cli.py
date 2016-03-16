@@ -4,7 +4,7 @@ from pprint import pprint
 import click
 from googleapiclient.errors import HttpError
 
-import gdsync.google.sync
+from gdsync.google.sync import Sync
 
 
 class Cli:
@@ -15,15 +15,14 @@ class Cli:
             self._error(error)
 
     def _sync(self):
-        sync = gdsync.google.sync.Sync(
+        Sync(
             self.source,
             self.destination,
+            callback=self._print,
             config_dir=self.config_dir,
             sqlite_file=self.sqlite_file,
             sync_id=self.sync_id,
-        )
-        sync.callback = self._print
-        sync.sync()
+        ).sync()
 
     def _error(self, error):
         print(error.uri)

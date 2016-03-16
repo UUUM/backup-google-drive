@@ -8,12 +8,16 @@ FinishedFolders.db_file_name = 'backup.db'
 
 
 class Sync:
-    def __init__(self, src, dest, config_dir=None, sqlite_file=None, sync_id=None):
-        self.callback = print_none
+    def __init__(self, src, dest, callback=None, config_dir=None, sqlite_file=None, sync_id=None):
         self.drive = Drive(config_dir=config_dir)
 
         self.src = self._init_resource(src)
         self.dest = self._init_resource(dest)
+
+        if callback:
+            self.callback = callback
+        else:
+            self.callback = print_none
 
         self.sqlite_file = sqlite_file
         self.sync_id = sync_id
