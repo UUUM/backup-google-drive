@@ -1,15 +1,19 @@
 from dateutil import parser
 import os
 
+import gdsync
 from gdsync.google.drive import Drive, Resource
 from gdsync.google.finished_folders import FinishedFolders
-
-FinishedFolders.db_file_name = 'backup.db'
 
 
 class Sync:
     def __init__(self, src, dest, callback=None, config_dir=None, sqlite_file=None, sync_id=None):
-        self.drive = Drive(config_dir=config_dir)
+        if config_dir:
+            self.config_dir = config_dir
+        else:
+            self.config_dir = gdsync.CONFIG_DIR
+
+        self.drive = Drive(config_dir=self.config_dir)
 
         self.src = self._init_resource(src)
         self.dest = self._init_resource(dest)
@@ -19,7 +23,11 @@ class Sync:
         else:
             self.callback = print_none
 
-        self.sqlite_file = sqlite_file
+        if sqlite_file:
+            self.sqlite_file = sqlite_file
+        else:
+            self.sqlite_file = os.path.join(self.config_dir, 'gdsync.db')
+
         self.sync_id = sync_id
 
         self.finished_folders = None
@@ -27,8 +35,7 @@ class Sync:
     def sync(self):
         if self.sync_id:
             self.finished_folders = FinishedFolders(self.dest.id)
-            if self.sqlite_file:
-                self.finished_folders.db_file = self.sqlite_file
+            self.finished_folders.db_file = self.sqlite_file
             self.finished_folders.load()
 
         self._sync(self.src, self.dest, '')

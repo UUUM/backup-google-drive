@@ -53,12 +53,8 @@ def main(source, destination, config_dir, sqlite_file, sync_id):
     cli.source = source
     cli.destination = destination
     cli.config_dir = config_dir
+    cli.sqlite_file = sqlite_file
     cli.sync_id = sync_id
-
-    if sqlite_file:
-        cli.sqlite_file = sqlite_file
-    else:
-        cli.sqlite_file = os.path.join(config_dir, 'gdsync.db')
 
     cli.main()
 
