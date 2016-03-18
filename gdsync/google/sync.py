@@ -34,7 +34,7 @@ class Sync:
 
     def sync(self):
         if self.sync_id:
-            self.finished_folders = FinishedFolders(self.dest.id)
+            self.finished_folders = FinishedFolders(self.sync_id)
             self.finished_folders.db_file = self.sqlite_file
             self.finished_folders.load()
 

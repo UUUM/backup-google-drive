@@ -8,17 +8,18 @@ import pytest
 
 from gdsync.google.sync import Sync
 from gdsync.google.drive import Drive, Resource
+from gdsync.google.finished_folders import FinishedFolders
 
 
 @pytest.mark.usefixtures('test_folder', 'src_folder', 'src_file', 'delete_db_file')
 class TestSync:
     def test_init(self):
-        backup = Sync('xxxxxx', 'yyyyyy')
-        assert hasattr(backup.callback, '__call__')
-        assert isinstance(backup.drive, Drive)
-        assert isinstance(backup.src, Resource)
-        assert isinstance(backup.dest, Resource)
-        assert backup.finished_folders is None
+        sync = Sync('xxxxxx', 'yyyyyy')
+        assert hasattr(sync.callback, '__call__')
+        assert isinstance(sync.drive, Drive)
+        assert isinstance(sync.src, Resource)
+        assert isinstance(sync.dest, Resource)
+        assert sync.finished_folders is None
 
     def test_sync(self, test_folder, src_folder, src_file):
         drive = Drive()
@@ -29,9 +30,11 @@ class TestSync:
         dest_folder = test_folder.create_folder(sync_id)
 
         # sync to empty folder
-        backup = Sync(src_folder, dest_folder, sync_id=sync_id).sync()
-        assert len(backup.finished_folders) == 1
-        assert src_folder.find('フォルダ').id in backup.finished_folders
+        sync = Sync(src_folder, dest_folder, sync_id=sync_id).sync()
+        assert isinstance(sync.finished_folders, FinishedFolders)
+        assert sync.finished_folders.root_id == sync_id
+        assert len(sync.finished_folders) == 1
+        assert src_folder.find('フォルダ').id in sync.finished_folders
         compare_folder(src_folder, dest_folder)
 
         # remove some files and sync
@@ -55,8 +58,8 @@ class TestSync:
 
         # skip synced folder
         dest_folder.find('フォルダ').find('テストsub').delete()
-        backup = Sync(src_folder, dest_folder, sync_id=sync_id).sync()
-        assert len(backup.finished_folders) == 1
+        sync = Sync(src_folder, dest_folder, sync_id=sync_id).sync()
+        assert len(sync.finished_folders) == 1
         assert drive.open(dest_folder.id).find('フォルダ').find('テストsub') is None
 
 
