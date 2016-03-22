@@ -1,5 +1,6 @@
 from dateutil import parser
 import os
+import six
 
 import gdsync
 from gdsync.google.drive import Drive, Resource
@@ -44,7 +45,7 @@ class Sync:
     def _init_resource(self, res):
         if isinstance(res, Resource):
             return self.drive.open(res.id)
-        elif isinstance(res, str):
+        elif isinstance(res, six.string_types):
             return self.drive.open(res)
         else:
             raise ValueError('Value must be Resource object or resource id')
