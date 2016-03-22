@@ -80,7 +80,7 @@ class Drive:
                 if isinstance(content, six.string_types):
                     if mime_type is None:
                         mime_type = 'text/plain'
-                    fd = io.StringIO(content)
+                    fd = io.BytesIO(bytearray(content, 'utf8'))
                 elif isinstance(content, six.binary_type):
                     fd = io.BytesIO(content)
                 else:
