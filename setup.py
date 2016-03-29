@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.0.3'
+version = '0.0.4'
 
 setup(
     name='gdsync',
@@ -12,7 +12,7 @@ setup(
     url='https://github.com/uuum/gdsync',
     license='MIT',
     packages=find_packages(exclude=['tests']),
-    install_requires=['google-api-python-client'],
+    install_requires=['google-api-python-client', 'python-dateutil'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     entry_points={
