@@ -11,11 +11,9 @@ class FinishedFolders(set):
 
     _conn = None
 
-    def __init__(self, root_id):
+    def __init__(self):
         if self.db_file is None:
             self.db_file = os.path.join(gdsync.VAR_DIR, self.db_file_name)
-
-        self.root_id = root_id
 
     def __exit__(self):
         if self._conn is not None:
@@ -29,8 +27,8 @@ class FinishedFolders(set):
         return self._conn
 
     def load(self):
-        sql = 'select id from %s where root_id = ?' % self.table
-        for row in self.conn.execute(sql, (self.root_id,)):
+        sql = 'select id from %s' % self.table
+        for row in self.conn.execute(sql):
             self.add(row[0])
 
         return self
@@ -38,9 +36,9 @@ class FinishedFolders(set):
     def save(self):
         for id in self:
             self.conn.execute('''
-                insert or replace into %s (id, root_id)
-                values (?, ?)
-            ''' % self.table, (id, self.root_id))
+                insert or replace into %s (id)
+                values (?)
+            ''' % self.table, (id,))
         self.conn.commit()
 
         return self
@@ -54,9 +52,7 @@ class FinishedFolders(set):
     def _initialize_table(self):
         self.conn.execute('''
             create table if not exists %s (
-                id      text not null,
-                root_id text not null,
-                unique (id, root_id)
+                id text not null unique
             )
         ''' % self.table)
 

@@ -14,7 +14,7 @@ TEST_FOLDER_NAME = 'gdsync-test'
 @pytest.fixture()
 def delete_db_file(request):
     def fin():
-        file = FinishedFolders('xxxxxx').db_file
+        file = FinishedFolders().db_file
         if os.path.isfile(file):
             os.unlink(file)
     request.addfinalizer(fin)

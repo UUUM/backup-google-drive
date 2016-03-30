@@ -8,7 +8,7 @@ from gdsync.google.finished_folders import FinishedFolders
 @pytest.mark.usefixtures('delete_db_file')
 class TestFinishedFolders:
     def test_conn(self):
-        folders = FinishedFolders('xxxxxx')
+        folders = FinishedFolders()
         conn = folders.conn
         assert isinstance(conn, sqlite3.Connection)
 
@@ -17,16 +17,11 @@ class TestFinishedFolders:
         ''', ('table', 'finished_folders'))
         assert 'finished_folders' == cur.fetchone()[0]
 
-    def test_load(self):
-        folders = FinishedFolders('xxxxxx')
+    def test_load_save(self):
+        folders = FinishedFolders()
 
-        # add dummy data
-        sql = 'insert into finished_folders (id, root_id) values (?, ?)'
-        folders.conn.execute(sql, ('foo', 1))
-        folders.conn.commit()
-
-        # load no data, ignore dummy data
-        folders = FinishedFolders('xxxxxx')
+        # load no data
+        folders = FinishedFolders()
         folders.load()
         assert len(folders) == 0
 
@@ -35,24 +30,10 @@ class TestFinishedFolders:
         assert 'foo' in folders
         folders.save()
 
-        # load
-        folders = FinishedFolders('xxxxxx')
-        folders.load()
-        assert 'foo' in folders
-        assert len(folders) == 1
-
-    def test_save(self):
-        folders = FinishedFolders('xxxxxx')
-
-        # add 'foo'
-        folders.add('foo')
-        assert 'foo' in folders
-        folders.save()
-
         # check if only 'foo' exists
         ids = set()
-        sql = 'select id from finished_folders where root_id = ?'
-        for row in folders.conn.execute(sql, ('xxxxxx',)):
+        sql = 'select id from finished_folders'
+        for row in folders.conn.execute(sql):
             ids.add(row[0])
         assert 'foo' in ids
         assert len(ids) == 1
@@ -64,8 +45,8 @@ class TestFinishedFolders:
 
         # check if both 'foo' and 'bar' exist
         ids = set()
-        sql = 'select id from finished_folders where root_id = ?'
-        for row in folders.conn.execute(sql, ('xxxxxx',)):
+        sql = 'select id from finished_folders'
+        for row in folders.conn.execute(sql):
             ids.add(row[0])
         assert 'foo' in ids
         assert 'bar' in ids
