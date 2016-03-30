@@ -21,7 +21,7 @@ class Cli:
             callback=self._print,
             config_dir=self.config_dir,
             sqlite_file=self.sqlite_file,
-            sync_id=self.sync_id,
+            resume=self.resume,
         ).sync()
 
     def _error(self, error):
@@ -43,18 +43,25 @@ class Cli:
 @click.option(
     '--config-dir',
     default=os.path.join(os.path.expanduser('~'), '.gdsync'),
-    help='config directory',
+    help='config directory (default: ~/.gdsync)',
 )
-@click.option('--sqlite-file', help='sqlite file to store information of progress')
-@click.option('--sync-id', help='unique id for syncronization')
-def main(source, destination, config_dir, sqlite_file, sync_id):
+@click.option(
+    '--sqlite-file',
+    help='sqlite file to store information of progress (defalut: ~/.gdsync/gdsync.db)',
+)
+@click.option(
+    '--resume/--no-resume',
+    help='resume syncronization: (default: --no-resume)',
+    default=False,
+)
+def main(source, destination, config_dir, sqlite_file, resume):
     cli = Cli()
 
     cli.source = source
     cli.destination = destination
     cli.config_dir = config_dir
     cli.sqlite_file = sqlite_file
-    cli.sync_id = sync_id
+    cli.resume = resume
 
     cli.main()
 
