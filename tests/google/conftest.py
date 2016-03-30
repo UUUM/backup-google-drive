@@ -5,20 +5,24 @@ import os
 
 import pytest
 
+import gdsync
 from gdsync.google.drive import Drive
-from gdsync.google.finished_folders import FinishedFolders
 
 TEST_FOLDER_NAME = 'gdsync-test'
 
 
 @pytest.fixture()
-def delete_db_file(request):
+def delete_db_file(request, sqlite_file):
     def fin():
-        file = FinishedFolders().db_file
-        if os.path.isfile(file):
-            os.unlink(file)
+        if os.path.isfile(sqlite_file):
+            os.unlink(sqlite_file)
     request.addfinalizer(fin)
     fin()
+
+
+@pytest.fixture()
+def sqlite_file(request):
+    return os.path.join(gdsync.VAR_DIR, 'test.db')
 
 
 @pytest.fixture(scope='session')

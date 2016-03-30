@@ -8,7 +8,7 @@ from gdsync.google.finished_folders import FinishedFolders
 
 
 class Sync:
-    def __init__(self, src, dest, callback=None, config_dir=None, sqlite_file=None, sync_id=None):
+    def __init__(self, src, dest, callback=None, config_dir=None, resume=False, sqlite_file=None):
         if config_dir:
             self.config_dir = config_dir
         else:
@@ -29,13 +29,12 @@ class Sync:
         else:
             self.sqlite_file = os.path.join(self.config_dir, 'gdsync.db')
 
-        self.sync_id = sync_id
-
+        self.resume = resume
         self.finished_folders = None
 
     def sync(self):
-        if self.sync_id:
-            self.finished_folders = FinishedFolders(self.sync_id)
+        if self.resume:
+            self.finished_folders = FinishedFolders()
             self.finished_folders.db_file = self.sqlite_file
             self.finished_folders.load()
 

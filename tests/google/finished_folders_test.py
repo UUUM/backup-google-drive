@@ -5,10 +5,11 @@ import pytest
 from gdsync.google.finished_folders import FinishedFolders
 
 
-@pytest.mark.usefixtures('delete_db_file')
+@pytest.mark.usefixtures('delete_db_file', 'sqlite_file')
 class TestFinishedFolders:
-    def test_conn(self):
+    def test_conn(self, sqlite_file):
         folders = FinishedFolders()
+        folders.db_file = sqlite_file
         conn = folders.conn
         assert isinstance(conn, sqlite3.Connection)
 
@@ -17,11 +18,10 @@ class TestFinishedFolders:
         ''', ('table', 'finished_folders'))
         assert 'finished_folders' == cur.fetchone()[0]
 
-    def test_load_save(self):
-        folders = FinishedFolders()
-
+    def test_load_save(self, sqlite_file):
         # load no data
         folders = FinishedFolders()
+        folders.db_file = sqlite_file
         folders.load()
         assert len(folders) == 0
 
