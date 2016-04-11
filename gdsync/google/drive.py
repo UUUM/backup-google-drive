@@ -227,7 +227,7 @@ class Drive:
             import argparse
             flags = argparse.ArgumentParser(
                 parents=[tools.argparser]
-            ).parse_args()
+            ).parse_args([])
             flow = client.flow_from_clientsecrets(
                 self.client_secret_file,
                 self.SCOPES
