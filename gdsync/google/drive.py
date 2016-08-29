@@ -14,6 +14,7 @@ import gdsync
 DEFAULT_RESOURCE_FIELDS = 'id, createdTime, mimeType, modifiedTime, name, parents, trashed'
 MIME_TYPE_APP = 'application/vnd.google-apps.drive-sdk'
 MIME_TYPE_FOLDER = 'application/vnd.google-apps.folder'
+MIME_TYPE_MAP = 'application/vnd.google-apps.map'
 
 
 class Drive:
@@ -340,8 +341,12 @@ class Resource:
     def has_folder(self, name):
         return self.has(name, mime_type=MIME_TYPE_FOLDER)
 
-    def is_app(self):
-        return self.mimeType.startswith(MIME_TYPE_APP)
+    def is_copyable(self):
+        mine_types = [
+            MIME_TYPE_APP,
+            MIME_TYPE_MAP
+        ]
+        return self.mimeType not in mine_types
 
     def is_folder(self):
         return self.mimeType == MIME_TYPE_FOLDER

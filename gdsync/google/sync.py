@@ -58,9 +58,7 @@ class Sync:
     def _sync_item(self, src_item, dest_res, folder_name):
         if src_item.is_folder():
             self._sync_folder(src_item, dest_res, folder_name)
-        elif src_item.is_app():
-            pass
-        else:
+        elif src_item.is_copyable():
             self._sync_file(src_item, dest_res, folder_name)
 
     def _sync_folder(self, src_item, dest_res, folder_name):
