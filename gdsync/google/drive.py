@@ -342,8 +342,10 @@ class Resource:
         return self.has(name, mime_type=MIME_TYPE_FOLDER)
 
     def is_copyable(self):
+        if self.mimeType.startswith(MIME_TYPE_APP):
+            return False
+
         mine_types = [
-            MIME_TYPE_APP,
             MIME_TYPE_MAP
         ]
         return self.mimeType not in mine_types
