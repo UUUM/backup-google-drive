@@ -34,46 +34,10 @@ class Drive:
         self.credential_file = os.path.join(self.config_dir, 'credentials.json')
 
     def add_parents(self, file, parents):
-        try:
-            self.service.files().update(
-                fileId=file.id,
-                addParents=self._create_parents_str(parents),
-            ).execute()
-
-            return self
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = 'add_parents'
-            error.method_args = {
-                'file': file,
-                'parents': parents,
-            }
-            raise error
+        return self._call_api('add_parents', file, parents)
 
     def copy(self, file, parents=None):
-        try:
-            metadata = {
-                'name': file.name,
-                'parents': self._create_parents_list(parents),
-            }
-            response = self.service.files().copy(
-                fileId=file.id,
-                body=metadata,
-            ).execute()
-
-            res = Resource(self, response['id'])
-            for key in response:
-                setattr(res, key, response[key])
-
-            return res
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = 'copy'
-            error.method_args = {
-                'file': file,
-                'parents': parents,
-            }
-            raise error
+        return self._call_api('copy', file, parents=parents)
 
     def create(self, name, content=None, media_body=None, mime_type=None, parents=None):
         try:
@@ -220,6 +184,41 @@ class Drive:
         if not self._service:
             Drive._service = self._create_service()
         return self._service
+
+    def _api_add_parents(self, file, parents):
+        self.service.files().update(
+            fileId=file.id,
+            addParents=self._create_parents_str(parents),
+        ).execute()
+
+        return self
+
+    def _api_copy(self, file, parents=None):
+        metadata = {
+            'name': file.name,
+            'parents': self._create_parents_list(parents),
+        }
+        response = self.service.files().copy(
+            fileId=file.id,
+            body=metadata,
+        ).execute()
+
+        res = Resource(self, response['id'])
+        for key in response:
+            setattr(res, key, response[key])
+
+        return res
+
+    def _call_api(self, method_name, *args, **kwargs):
+        try:
+            method = getattr(self, '_api_{}'.format(method_name))
+            return method(*args, **kwargs)
+        except HttpError as error:
+            error = self._create_error(error)
+            error.method = method_name
+            error.method_args = args
+            error.method_kwargs = kwargs
+            raise error
 
     def _create_credentials(self):
         store = oauth2client.file.Storage(self.credential_file)
