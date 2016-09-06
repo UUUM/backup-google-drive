@@ -132,10 +132,10 @@ class TestResource:
 
     def test_create(self, dest_folder):
         res = Resource(Drive(), dest_folder.id)
-        folder = res.create('test.txt', content='test')
+        file = res.create('test.txt', content='test')
 
-        res = Resource(Drive(), folder.id)
-        assert folder.id == res.id
+        res = Resource(Drive(), file.id)
+        assert file.id == res.id
         assert 'test.txt' == res.name
         assert 'text/plain' == res.mimeType
         assert res.parents[0] == dest_folder.id

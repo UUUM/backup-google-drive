@@ -40,49 +40,14 @@ class Drive:
         return self._call_api('copy', file, parents=parents)
 
     def create(self, name, content=None, media_body=None, mime_type=None, parents=None):
-        try:
-            if content is not None:
-                if isinstance(content, six.string_types):
-                    if mime_type is None:
-                        mime_type = 'text/plain'
-                    fd = io.BytesIO(bytearray(content, 'utf8'))
-                elif isinstance(content, six.binary_type):
-                    fd = io.BytesIO(content)
-                else:
-                    raise ValueError('content must be string or binary')
-
-                media_body = MediaIoBaseUpload(
-                    fd,
-                    mimetype=mime_type,
-                    resumable=True,
-                )
-
-            metadata = {
-                'name': name,
-                'mimeType': mime_type,
-                'parents': self._create_parents_list(parents),
-            }
-            folder = self.service.files().create(
-                body=metadata,
-                fields=DEFAULT_RESOURCE_FIELDS,
-                media_body=media_body,
-            ).execute()
-
-            res = Resource(self, folder['id'])
-            for key in folder:
-                setattr(res, key, folder[key])
-            res._files = {}
-
-            return res
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = 'create'
-            error.method_args = {
-                'name': name,
-                'mime_type': mime_type,
-                'parents': parents,
-            }
-            raise error
+        return self._call_api(
+            'create',
+            name,
+            content=content,
+            media_body=media_body,
+            mime_type=mime_type,
+            parents=parents
+        )
 
     def create_folder(self, name, parents=None):
         return self.create(name, mime_type=MIME_TYPE_FOLDER, parents=parents)
@@ -94,33 +59,10 @@ class Drive:
         return self._credentials
 
     def delete(self, file):
-        try:
-            self.service.files().delete(
-                fileId=file.id,
-            ).execute()
-
-            return self
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = 'delete'
-            error.method_args = {
-                'file': file,
-            }
-            raise error
+        return self._call_api('delete', file)
 
     def get(self, file):
-        try:
-            return self.service.files().get(
-                fileId=file.id,
-                fields=DEFAULT_RESOURCE_FIELDS,
-            ).execute()
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = 'get'
-            error.method_args = {
-                'file': file,
-            }
-            raise error
+        return self._call_api('get', file)
 
     @property
     def http(self):
@@ -163,21 +105,7 @@ class Drive:
         return Resource(self, id)
 
     def remove_parents(self, file, parents):
-        try:
-            self.service.files().update(
-                fileId=file.id,
-                removeParents=self._create_parents_str(parents),
-            ).execute()
-
-            return self
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = 'remove_parents'
-            error.method_args = {
-                'file': file,
-                'parents': parents,
-            }
-            raise error
+        return self._call_api('remove_parents', file, parents)
 
     @property
     def service(self):
@@ -208,6 +136,62 @@ class Drive:
             setattr(res, key, response[key])
 
         return res
+
+    def _api_create(self, name, content=None, media_body=None, mime_type=None, parents=None):
+        if content is not None:
+            if isinstance(content, six.string_types):
+                if mime_type is None:
+                    mime_type = 'text/plain'
+                fd = io.BytesIO(bytearray(content, 'utf8'))
+            elif isinstance(content, six.binary_type):
+                fd = io.BytesIO(content)
+            else:
+                raise ValueError('content must be string or binary')
+
+            media_body = MediaIoBaseUpload(
+                fd,
+                mimetype=mime_type,
+                resumable=True,
+            )
+
+        metadata = {
+            'name': name,
+            'mimeType': mime_type,
+            'parents': self._create_parents_list(parents),
+        }
+        folder = self.service.files().create(
+            body=metadata,
+            fields=DEFAULT_RESOURCE_FIELDS,
+            media_body=media_body,
+        ).execute()
+
+        res = Resource(self, folder['id'])
+        for key in folder:
+            setattr(res, key, folder[key])
+        res._files = {}
+
+        return res
+
+    def _api_delete(self, file):
+        self.service.files().delete(
+            fileId=file.id,
+        ).execute()
+
+        return self
+
+    def _api_get(self, file):
+        return self.service.files().get(
+            fileId=file.id,
+            fields=DEFAULT_RESOURCE_FIELDS,
+        ).execute()
+
+    def _api_remove_parents(self, file, parents):
+        self.service.files().update(
+            fileId=file.id,
+            removeParents=self._create_parents_str(parents),
+        ).execute()
+
+        return self
 
     def _call_api(self, method_name, *args, **kwargs):
         try:
