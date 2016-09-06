@@ -70,36 +70,24 @@ class Drive:
             self._http = self._create_http()
         return self._http
 
-    def list(self, order_by=None, page_size=1000, query=None):
-        try:
-            page_token = None
-            while True:
-                fields = 'nextPageToken, files(%s)' % DEFAULT_RESOURCE_FIELDS
-                response = self.service.files().list(
-                    q=query,
-                    spaces='drive',
-                    fields=fields,
-                    orderBy=order_by,
-                    pageToken=page_token,
-                    pageSize=page_size,
-                ).execute()
+    def list(self, query=None, order_by=None, page_size=1000):
+        page_token = None
+        while True:
+            files, page_token = self._call_api(
+                'list',
+                query=query,
+                order_by=order_by,
+                page_size=page_size,
+                page_token=page_token
+            )
+            for file in files:
+                res = Resource(self, file['id'])
+                for key in file:
+                    setattr(res, key, file[key])
+                yield res
 
-                for file in response.get('files', []):
-                    res = Resource(self, file['id'])
-                    for key in file:
-                        setattr(res, key, file[key])
-                    yield res
-
-                page_token = response.get('nextPageToken', None)
-                if page_token is None:
-                    break
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = 'list'
-            error.method_args = {
-                'file': file,
-            }
-            raise error
+            if page_token is None:
+                break
 
     def open(self, id):
         return Resource(self, id)
@@ -184,6 +172,19 @@ class Drive:
             fileId=file.id,
             fields=DEFAULT_RESOURCE_FIELDS,
         ).execute()
+
+    def _api_list(self, query=None, order_by=None, page_size=1000, page_token=None):
+        fields = 'nextPageToken, files(%s)' % DEFAULT_RESOURCE_FIELDS
+        response = self.service.files().list(
+            q=query,
+            spaces='drive',
+            fields=fields,
+            orderBy=order_by,
+            pageToken=page_token,
+            pageSize=page_size,
+        ).execute()
+
+        return (response.get('files', []), response.get('nextPageToken', None))
 
     def _api_remove_parents(self, file, parents):
         self.service.files().update(
