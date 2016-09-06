@@ -1,6 +1,7 @@
 import httplib2
 import io
 import os
+import simplejson
 import six
 
 from apiclient import discovery
@@ -249,7 +250,22 @@ class Drive:
 
 class DriveError(HttpError):
     method = None
-    method_args = {}
+    method_args = []
+    method_kwargs = {}
+
+    _contents = None
+
+    @property
+    def contents(self):
+        if not self._contents:
+            self._contents = simplejson.loads(self.content)
+        return self._contents
+
+    def is_reason(self, reason):
+        for error in self.contents['error']['errors']:
+            if error['reason'] == reason:
+                return True
+        return False
 
 
 class Resource:

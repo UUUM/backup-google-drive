@@ -3,7 +3,7 @@ import os
 import six
 
 import gdsync
-from gdsync.google.drive import Drive, Resource
+from gdsync.google.drive import Drive, DriveError, Resource
 from gdsync.google.finished_folders import FinishedFolders
 
 
@@ -81,13 +81,19 @@ class Sync:
         dest_file = dest_res.find(src_item.name, mime_type=src_item.mimeType)
         if not dest_file:
             self.callback(src_item, folder_name, state='new')
-            src_item.copy_to(dest_res)
         elif parser.parse(dest_file.createdTime) < parser.parse(src_item.modifiedTime):
             self.callback(src_item, folder_name, state='update')
             dest_file.delete()
-            src_item.copy_to(dest_res)
         else:
             self.callback(src_item, folder_name, state='skip')
+            return
+
+        try:
+            src_item.copy_to(dest_res)
+        except DriveError as error:
+            if error.is_reason('insufficientFilePermissions'):
+                return
+            raise error
 
 
 def print_none(src_item, folder_name, state=''):
