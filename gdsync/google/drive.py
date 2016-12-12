@@ -12,7 +12,16 @@ from oauth2client import client, tools
 
 import gdsync
 
-DEFAULT_RESOURCE_FIELDS = 'id, createdTime, mimeType, modifiedTime, name, parents, trashed'
+DEFAULT_RESOURCE_FIELDS = ','.join([
+    'id',
+    'capabilities',
+    'createdTime',
+    'mimeType',
+    'modifiedTime',
+    'name',
+    'parents',
+    'trashed',
+])
 MIME_TYPE_APP = 'application/vnd.google-apps.drive-sdk'
 MIME_TYPE_FOLDER = 'application/vnd.google-apps.folder'
 MIME_TYPE_MAP = 'application/vnd.google-apps.map'
@@ -38,6 +47,8 @@ class Drive:
         return self._call_api('add_parents', file, parents)
 
     def copy(self, file, parents=None):
+        if not file.capabilities['canCopy']:
+            return False
         return self._call_api('copy', file, parents=parents)
 
     def create(self, name, content=None, media_body=None, mime_type=None, parents=None):

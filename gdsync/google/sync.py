@@ -3,7 +3,7 @@ import os
 import six
 
 import gdsync
-from gdsync.google.drive import Drive, DriveError, Resource
+from gdsync.google.drive import Drive, Resource
 from gdsync.google.finished_folders import FinishedFolders
 
 
@@ -88,12 +88,8 @@ class Sync:
             self.callback(src_item, folder_name, state='skip')
             return
 
-        try:
-            src_item.copy_to(dest_res)
-        except DriveError as error:
-            if error.is_reason('insufficientFilePermissions'):
-                return
-            raise error
+        if not src_item.copy_to(dest_res):
+            self.callback(src_item, folder_name, state='unable')
 
 
 def print_none(src_item, folder_name, state=''):
