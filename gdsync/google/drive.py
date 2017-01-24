@@ -113,18 +113,20 @@ class Drive:
             Drive._service = self._create_service()
         return self._service
 
-    def _api_add_parents(self, file, parents):
+    def _api_add_parents(self, file, parents, params={}):
         self.service.files().update(
             fileId=file.id,
             addParents=self._create_parents_str(parents),
+            **params
         ).execute()
 
         return self
 
-    def _api_copy(self, file, parents=None):
+    def _api_copy(self, file, parents=None, params={}):
         metadata = {
             'name': file.name,
             'parents': self._create_parents_list(parents),
+            **params
         }
         response = self.service.files().copy(
             fileId=file.id,
@@ -137,7 +139,15 @@ class Drive:
 
         return res
 
-    def _api_create(self, name, content=None, media_body=None, mime_type=None, parents=None):
+    def _api_create(
+        self,
+        name,
+        content=None,
+        media_body=None,
+        mime_type=None,
+        parents=None,
+        params={}
+    ):
         if content is not None:
             if isinstance(content, six.string_types):
                 if mime_type is None:
@@ -163,6 +173,7 @@ class Drive:
             body=metadata,
             fields=DEFAULT_RESOURCE_FIELDS,
             media_body=media_body,
+            **params
         ).execute()
 
         res = Resource(self, folder['id'])
@@ -172,20 +183,22 @@ class Drive:
 
         return res
 
-    def _api_delete(self, file):
+    def _api_delete(self, file, params={}):
         self.service.files().delete(
             fileId=file.id,
+            **params
         ).execute()
 
         return self
 
-    def _api_get(self, file):
+    def _api_get(self, file, params={}):
         return self.service.files().get(
             fileId=file.id,
             fields=DEFAULT_RESOURCE_FIELDS,
+            **params
         ).execute()
 
-    def _api_list(self, query=None, order_by=None, page_size=1000, page_token=None):
+    def _api_list(self, query=None, order_by=None, page_size=1000, page_token=None, params={}):
         fields = 'nextPageToken, files(%s)' % DEFAULT_RESOURCE_FIELDS
         response = self.service.files().list(
             q=query,
@@ -194,14 +207,16 @@ class Drive:
             orderBy=order_by,
             pageToken=page_token,
             pageSize=page_size,
+            **params
         ).execute()
 
         return (response.get('files', []), response.get('nextPageToken', None))
 
-    def _api_remove_parents(self, file, parents):
+    def _api_remove_parents(self, file, parents, params={}):
         self.service.files().update(
             fileId=file.id,
             removeParents=self._create_parents_str(parents),
+            **params
         ).execute()
 
         return self
