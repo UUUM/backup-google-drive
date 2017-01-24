@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pprint import pprint
 
 import click
@@ -34,7 +35,7 @@ class Cli:
         if src_item.is_folder():
             name += '/'
 
-        print('%s: %s' % (state, name))
+        print('%s: %s: %s' % (datetime.now(), state, name))
 
 
 @click.command()
