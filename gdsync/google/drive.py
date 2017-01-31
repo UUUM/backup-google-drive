@@ -224,6 +224,7 @@ class Drive:
             error.method = method_name
             error.method_args = args
             error.method_kwargs = kwargs
+            error.common_params = self.common_params
             raise error
 
     def _create_credentials(self):
