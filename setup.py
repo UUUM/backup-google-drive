@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.0.14'
+version = '0.0.15'
 
 setup(
     name='gdsync',
