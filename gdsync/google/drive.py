@@ -34,7 +34,7 @@ class Drive:
     _http = None
     _service = None
 
-    def __init__(self, config_dir=None):
+    def __init__(self, config_dir=None, common_params={}):
         if config_dir:
             self.config_dir = config_dir
         else:
@@ -42,6 +42,8 @@ class Drive:
 
         self.client_secret_file = os.path.join(self.config_dir, 'client_secrets.json')
         self.credential_file = os.path.join(self.config_dir, 'credentials.json')
+
+        self.common_params = common_params
 
     def add_parents(self, file, parents):
         return self._call_api('add_parents', file, parents)
@@ -113,22 +115,22 @@ class Drive:
             Drive._service = self._create_service()
         return self._service
 
-    def _api_add_parents(self, file, parents, params={}):
+    def _api_add_parents(self, file, parents):
         self.service.files().update(
+            **self.common_params,
             fileId=file.id,
             addParents=self._create_parents_str(parents),
-            **params
         ).execute()
 
         return self
 
-    def _api_copy(self, file, parents=None, params={}):
+    def _api_copy(self, file, parents=None):
         metadata = {
             'name': file.name,
             'parents': self._create_parents_list(parents),
-            **params
         }
         response = self.service.files().copy(
+            **self.common_params,
             fileId=file.id,
             body=metadata,
         ).execute()
@@ -139,15 +141,7 @@ class Drive:
 
         return res
 
-    def _api_create(
-        self,
-        name,
-        content=None,
-        media_body=None,
-        mime_type=None,
-        parents=None,
-        params={}
-    ):
+    def _api_create(self, name, content=None, media_body=None, mime_type=None, parents=None):
         if content is not None:
             if isinstance(content, six.string_types):
                 if mime_type is None:
@@ -170,10 +164,10 @@ class Drive:
             'parents': self._create_parents_list(parents),
         }
         folder = self.service.files().create(
+            **self.common_params,
             body=metadata,
             fields=DEFAULT_RESOURCE_FIELDS,
             media_body=media_body,
-            **params
         ).execute()
 
         res = Resource(self, folder['id'])
@@ -183,40 +177,40 @@ class Drive:
 
         return res
 
-    def _api_delete(self, file, params={}):
+    def _api_delete(self, file):
         self.service.files().delete(
+            **self.common_params,
             fileId=file.id,
-            **params
         ).execute()
 
         return self
 
-    def _api_get(self, file, params={}):
+    def _api_get(self, file):
         return self.service.files().get(
+            **self.common_params,
             fileId=file.id,
             fields=DEFAULT_RESOURCE_FIELDS,
-            **params
         ).execute()
 
-    def _api_list(self, query=None, order_by=None, page_size=1000, page_token=None, params={}):
+    def _api_list(self, query=None, order_by=None, page_size=1000, page_token=None):
         fields = 'nextPageToken, files(%s)' % DEFAULT_RESOURCE_FIELDS
         response = self.service.files().list(
+            **self.common_params,
             q=query,
             spaces='drive',
             fields=fields,
             orderBy=order_by,
             pageToken=page_token,
             pageSize=page_size,
-            **params
         ).execute()
 
         return (response.get('files', []), response.get('nextPageToken', None))
 
-    def _api_remove_parents(self, file, parents, params={}):
+    def _api_remove_parents(self, file, parents):
         self.service.files().update(
+            **self.common_params,
             fileId=file.id,
             removeParents=self._create_parents_str(parents),
-            **params
         ).execute()
 
         return self

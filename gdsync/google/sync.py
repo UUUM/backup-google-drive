@@ -8,13 +8,22 @@ from gdsync.google.finished_folders import FinishedFolders
 
 
 class Sync:
-    def __init__(self, src, dest, callback=None, config_dir=None, resume=False, sqlite_file=None):
+    def __init__(
+        self,
+        src,
+        dest,
+        callback=None,
+        config_dir=None,
+        resume=False,
+        sqlite_file=None,
+        common_params={}
+    ):
         if config_dir:
             self.config_dir = config_dir
         else:
             self.config_dir = gdsync.CONFIG_DIR
 
-        self.drive = Drive(config_dir=self.config_dir)
+        self.drive = Drive(config_dir=self.config_dir, common_params=common_params)
 
         self.src = self._init_resource(src)
         self.dest = self._init_resource(dest)
