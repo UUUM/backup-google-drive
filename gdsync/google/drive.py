@@ -3,6 +3,7 @@ import io
 import os
 import simplejson
 import six
+import time
 
 from apiclient import discovery
 from googleapiclient.http import MediaIoBaseUpload
@@ -216,16 +217,24 @@ class Drive:
         return self
 
     def _call_api(self, method_name, *args, **kwargs):
-        try:
-            method = getattr(self, '_api_{}'.format(method_name))
-            return method(*args, **kwargs)
-        except HttpError as error:
-            error = self._create_error(error)
-            error.method = method_name
-            error.method_args = args
-            error.method_kwargs = kwargs
-            error.common_params = self.common_params
-            raise error
+        wait_sec = 1
+        for i in range(10):
+            try:
+                method = getattr(self, '_api_{}'.format(method_name))
+                return method(*args, **kwargs)
+            except HttpError as error:
+                error = self._create_error(error)
+
+                if error.code == 403 and error.reason == 'userRateLimitExceeded':
+                    time.sleep(wait_sec)
+                    wait_sec *= 2
+                    continue
+
+                error.method = method_name
+                error.method_args = args
+                error.method_kwargs = kwargs
+                error.common_params = self.common_params
+                raise error
 
     def _create_credentials(self):
         store = oauth2client.file.Storage(self.credential_file)
