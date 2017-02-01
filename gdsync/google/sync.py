@@ -98,7 +98,7 @@ class Sync:
             return
 
         if not src_item.copy_to(dest_res):
-            self.callback(src_item, folder_name, state='unable')
+            self.callback(src_item, folder_name, state='failed')
 
 
 def print_none(src_item, folder_name, state=''):
