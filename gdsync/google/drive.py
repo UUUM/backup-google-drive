@@ -277,10 +277,26 @@ class DriveError(HttpError):
     _contents = None
 
     @property
+    def code(self):
+        return self.contents['error']['code']
+
+    @property
     def contents(self):
         if not self._contents:
             self._contents = simplejson.loads(self.content)
         return self._contents
+
+    @property
+    def domain(self):
+        return self.contents['error']['errors'][0]['domain']
+
+    @property
+    def message(self):
+        return self.contents['error']['errors'][0]['message']
+
+    @property
+    def reason(self):
+        return self.contents['error']['errors'][0]['reason']
 
     def is_reason(self, reason):
         for error in self.contents['error']['errors']:
