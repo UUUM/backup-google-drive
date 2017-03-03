@@ -218,7 +218,7 @@ class Drive:
 
     def _call_api(self, method_name, *args, **kwargs):
         wait_sec = 1
-        for i in range(10):
+        for i in range(7):
             try:
                 method = getattr(self, '_api_{}'.format(method_name))
                 return method(*args, **kwargs)
